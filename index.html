@@ -146,7 +146,65 @@
       font-weight: bold;
       margin-top: 10px;
     }
-  
+  @media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .section {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(9, 28px);
+    grid-template-rows: repeat(9, 28px);
+    gap: 1px;
+  }
+
+  .cell {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .match-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .match-target {
+    min-width: unset;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .match-item {
+    font-size: 14px;
+    text-align: center;
+  }
+
+  button, .hint-button {
+    width: 100%;
+    margin: 5px 0;
+    font-size: 16px;
+  }
+
+  #test-questions div,
+  #yesno-questions div {
+    text-align: left;
+  }
+
+  label {
+    display: block;
+    margin: 3px 0;
+  }
+
+  h1, h2 {
+    font-size: 20px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -537,7 +595,43 @@ const definitions = [
 
   document.getElementById("final-result").innerText = `Жалпы дұрыс жауаптар: ${correct} / ${total}`;
 }
+function showFinalResult() {
+  let filwordScore = score;
+  
+  let matchScore = 0;
+  targets.forEach(t => {
+    if (t.classList.contains("matched")) matchScore += 1;
+  });
+
+  const testText = document.getElementById("test-feedback").innerText;
+  const testCorrect = parseInt(testText.match(/\d+/)?.[0] || 0);
+
+  const yesnoText = document.getElementById("yesno-feedback").innerText;
+  const yesnoCorrect = parseInt(yesnoText.match(/\d+/)?.[0] || 0);
+
+  const totalScore = filwordScore + matchScore * 10 + testCorrect * 10 + yesnoCorrect * 10;
+
+  document.getElementById("final-result").innerText = `Жалпы ұпай: ${totalScore}`;
+}
+function checkMatches() {
+  let correct = 0;
+  targets.forEach(t => {
+    if (t.classList.contains("matched")) {
+      correct++;
+    } else {
+      t.classList.add("incorrect");
+    }
+  });
+  alert(`Дұрыс сәйкестік саны: ${correct} / ${targets.length}`);
+}
+if (score === words.length * 10) {
+  document.getElementById("congrats").style.display = "block";
+}
 
   </script>
+  <div id="congrats" style="display: none; font-weight: bold; color: green;">Барлық сөз табылды! Құттықтаймыз!</div>
+
+ 
+
 </body>
 </html>
