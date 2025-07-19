@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <title>Филворд және Сәйкестендіру</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f0f0ff;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #4b0082;
+    }
+    .section {
+      margin-bottom: 50px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(9, 35px);
+      grid-template-rows: repeat(9, 35px);
+      justify-content: center;
+      margin: 20px auto;
+      gap: 2px;
+      user-select: none;
+    }
+    .cell {
+      width: 35px;
+      height: 35px;
+      background-color: white;
+      border: 1px solid #ccc;
+      font-size: 18px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: #000;
+    }
+    .cell.selected {
+      background-color: #ff0;
+    }
+    .cell.correct {
+      background-color: #90ee90;
+    }
+    #word-list, #score, #hints {
+      margin-top: 20px;
+    }
+    .hint-button {
+      padding: 8px 16px;
+      margin: 5px;
+      background-color: #4b0082;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .hint-button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+    .match-container {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    .match-item {
+      padding: 10px;
+      background-color: #fff;
+      border: 1px solid #aaa;
+      margin-bottom: 10px;
+      cursor: grab;
+      position: relative;
+    }
+    .match-item::after {
+      content: '\2192';
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #4b0082;
+    }
+    .match-target {
+      padding: 10px;
+      background-color: #eee;
+      border: 2px dashed #aaa;
+      min-width: 200px;
+      min-height: 30px;
+    }
+    .matched {
+      background-color: #90ee90 !important;
+      border: 2px solid green;
+    }
+    .incorrect {
+      background-color: #f88 !important;
+      border: 2px solid red;
+    }
+  </style>
+</head>
+<body>
+  <div class="section">
+    <h1>Филворд: Ежелгі аймақтарды тап!</h1>
+    <div class="grid" id="grid"></div>
+    <div id="word-list">
+      <p><strong>Тап:</strong> Хорезм, Соғды, Ферғана, Шаш, Сырдария, Жетісу</p>
+    </div>
+    <div id="hints">
+      <button class="hint-button" onclick="useHint(0)" id="hint0">Көмек 1</button>
+      <button class="hint-button" onclick="useHint(1)" id="hint1">Көмек 2</button>
+      <button class="hint-button" onclick="useHint(2)" id="hint2">Көмек 3</button>
+    </div>
+    <div id="score">Ұпай: 0</div>
+  </div>
+
+  <div class="section">
+    <h1>Сәйкестендіру: Аймақ пен сипаттаманы сәйкестендір</h1>
+    <div class="match-container">
+      <div id="drag-source">
+        <div class="match-item" draggable="true" data-match="Хорезм">Хорезм</div>
+        <div class="match-item" draggable="true" data-match="Соғды">Соғды</div>
+        <div class="match-item" draggable="true" data-match="Ферғана">Ферғана</div>
+        <div class="match-item" draggable="true" data-match="Шаш">Шаш</div>
+        <div class="match-item" draggable="true" data-match="Жетісу">Жетісу</div>
+      </div>
+      <div>
+        <div class="match-target" data-accept="Хорезм">Амудария сағасында орналасқан</div>
+        <div class="match-target" data-accept="Соғды">Сауда-саттық пен жазудың орталығы</div>
+        <div class="match-target" data-accept="Ферғана">Жібек жолының шығыс тармағы өтетін</div>
+        <div class="match-target" data-accept="Шаш">Тарихи Ташкент өңірі</div>
+        <div class="match-target" data-accept="Жетісу">Су көздеріне бай аймақ</div>
+      </div>
+    </div>
+    <button onclick="checkMatches()" class="hint-button">Тексеру</button>
+    <button onclick="resetMatches()" class="hint-button">Болдырмау</button>
+  </div>
+
+  <script>
+    const words = ["ХОРЕЗМ", "СОГДЫ", "ФЕРГАНА", "ШАШ", "СЫРДАРИЯ", "ЖЕТІСУ"];
+    const gridSize = 9;
+    const grid = document.getElementById("grid");
+    const scoreDisplay = document.getElementById("score");
+    let score = 0;
+    let selectedCells = [];
+
+    function generateGrid() {
+      const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+      for (let i = 0; i < gridSize * gridSize; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.textContent = letters.charAt(Math.floor(Math.random() * letters.length));
+        cell.addEventListener("click", () => selectCell(cell));
+        grid.appendChild(cell);
+      }
+    }
+
+    function selectCell(cell) {
+      if (!cell.classList.contains("selected")) {
+        cell.classList.add("selected");
+        selectedCells.push(cell);
+      } else {
+        cell.classList.remove("selected");
+        selectedCells = selectedCells.filter(c => c !== cell);
+      }
+
+      const selectedWord = selectedCells.map(c => c.textContent).join("");
+      if (words.includes(selectedWord)) {
+        selectedCells.forEach(c => {
+          c.classList.remove("selected");
+          c.classList.add("correct");
+          c.removeEventListener("click", () => selectCell(c));
+        });
+        score += 10;
+        scoreDisplay.textContent = `Ұпай: ${score}`;
+        selectedCells = [];
+      }
+    }
+
+    function useHint(index) {
+      alert(`Көмек ${index + 1}: Бір сөз - ${words[index]}`);
+      document.getElementById(`hint${index}`).disabled = true;
+    }
+
+    generateGrid();
+  </script>
+</body>
+</html>
