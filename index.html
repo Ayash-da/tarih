@@ -20,15 +20,57 @@
       margin-bottom: 30px;
       box-shadow: 0 0 10px #ccc;
     }
+    
     .grid {
       display: grid;
-      grid-template-columns: repeat(9, 35px);
-      grid-template-rows: repeat(9, 35px);
+      grid-template-columns: repeat(10, 40px);
+      gap: 6px;
       justify-content: center;
-      margin: 20px auto;
-      gap: 2px;
-      user-select: none;
+      margin: 20px 0;
     }
+       .cell {
+      background: #f5e8ff;
+      border-radius: 10px;
+      border: 2px solid #caa4ff;
+      width: 40px; height: 40px;
+      display: flex; justify-content: center; align-items: center;
+      font-weight: bold;
+      cursor: pointer;
+   
+    }
+    .cell:hover {
+      background: #e8d6ff;
+      transform: scale(1.05);
+    }
+    .cell.selected {
+      background: #d5b3ff;
+    }
+    .cell.correct {
+      background: #c0ffef;
+      border-color: #2ec4b6;
+      pointer-events: none;
+    }
+    .hint-button {
+      background:  #4b0082;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+ 
+    #score, #congrats {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+    #congrats {
+      display: none;
+      color: #006d2c;
+      font-weight: bold;
+    }
+    
     .cell {
       width: 35px;
       height: 35px;
@@ -104,6 +146,7 @@
       font-weight: bold;
       margin-top: 10px;
     }
+  
   </style>
 </head>
 <body>
@@ -122,29 +165,31 @@
     </div>
     <div id="score">Ұпай: 0</div>
   </div>
+  <div id="congrats" style="display:none; font-size: 20px; color: green; margin-top: 10px;">
+  Құттықтаймыз! Барлық сөздерді таптыңыз!
+</div>
+
 
   <!-- Сәйкестендіру -->
-  <div class="section">
-    <h1>Сәйкестендіру: Аймақ пен сипаттаманы сәйкестендір</h1>
-    <div class="match-container">
-      <div id="drag-source">
-        <div class="match-item" draggable="true" data-match="Хорезм">Хорезм</div>
-        <div class="match-item" draggable="true" data-match="Соғды">Соғды</div>
-        <div class="match-item" draggable="true" data-match="Ферғана">Ферғана</div>
-        <div class="match-item" draggable="true" data-match="Шаш">Шаш</div>
-        <div class="match-item" draggable="true" data-match="Жетісу">Жетісу</div>
-      </div>
-      <div>
-        <div class="match-target" data-accept="Хорезм">Амудария сағасында орналасқан</div>
-        <div class="match-target" data-accept="Соғды">Сауда-саттық пен жазудың орталығы</div>
-        <div class="match-target" data-accept="Ферғана">Жібек жолының шығыс тармағы өтетін</div>
-        <div class="match-target" data-accept="Шаш">Тарихи Ташкент өңірі</div>
-        <div class="match-target" data-accept="Жетісу">Су көздеріне бай аймақ</div>
-      </div>
+<section id="match" class="section">
+  <h2>Сәйкестендіру</h2>
+  <div class="match-container">
+    <div class="match-items">
+      <div class="match-item" draggable="true" data-match="Хорезм" id="item1">Хорезм</div>
+      <div class="match-item" draggable="true" data-match="Соғды" id="item2">Соғды</div>
+      <div class="match-item" draggable="true" data-match="Ферғана" id="item3">Ферғана</div>
+      <div class="match-item" draggable="true" data-match="Шаш" id="item4">Шаш</div>
+      <div class="match-item" draggable="true" data-match="Жетісу" id="item5">Жетісу</div>
     </div>
-    <button onclick="checkMatches()" class="hint-button">Тексеру</button>
-    <button onclick="resetMatches()" class="hint-button">Болдырмау</button>
+
+    <div class="match-targets">
+      <!-- JS арқылы рандом түрде генерацияланады -->
+    </div>
   </div>
+  <button onclick="checkMatches()">Тексеру</button>
+  <button onclick="resetMatches()">Қайта бастау</button>
+</section>
+
 
   <!-- Тест және Иә/Жоқ -->
   <div class="section">
@@ -160,97 +205,251 @@
     <button onclick="checkYesNoAnswers()">Тексеру</button>
     <div id="yesno-feedback" class="feedback"></div>
   </div>
+<button onclick="showFinalResult()">Жалпы Нәтиже</button>
+<div id="final-result" class="feedback"></div>
 
   <script>
     // Филворд
-    const words = ["ХОРЕЗМ", "СОГДЫ", "ФЕРГАНА", "ШАШ", "СЫРДАРИЯ", "ЖЕТІСУ"];
-    const gridSize = 9;
-    const grid = document.getElementById("grid");
-    const scoreDisplay = document.getElementById("score");
-    let score = 0;
-    let selectedCells = [];
+   	// <![CDATA[  <-- For SVG support
+       const wordList = ["ХОРЕЗМ", "СОГДЫ", "ФЕРГАНА", "ШАШ", "СЫРДАРИЯ", "ЖЕТІСУ"];
+    const gridSize = 10;
+    let gridData = Array.from({ length: gridSize }, () => Array(gridSize).fill(""));
+    let wordPositions = {};
+    let foundWords = [], score = 0, hintsUsed = [];
 
-    function generateGrid() {
-      const letters = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
-      for (let i = 0; i < gridSize * gridSize; i++) {
-        const cell = document.createElement("div");
-        cell.classList.add("cell");
-        cell.textContent = letters.charAt(Math.floor(Math.random() * letters.length));
-        cell.addEventListener("click", () => selectCell(cell));
-        grid.appendChild(cell);
+    const directions = [
+      { x: 1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 1, y: 1 }
+    ];
+
+    function placeWord(word) {
+      for (let attempt = 0; attempt < 100; attempt++) {
+        const dir = directions[Math.floor(Math.random() * directions.length)];
+        const startX = Math.floor(Math.random() * (gridSize - dir.x * word.length));
+        const startY = Math.floor(Math.random() * (gridSize - dir.y * word.length));
+
+        let canPlace = true;
+        let positions = [];
+        for (let i = 0; i < word.length; i++) {
+          const x = startX + dir.x * i;
+          const y = startY + dir.y * i;
+          if (gridData[y][x] !== "" && gridData[y][x] !== word[i]) {
+            canPlace = false;
+            break;
+          }
+          positions.push({ x, y });
+        }
+        if (!canPlace) continue;
+
+        for (let i = 0; i < word.length; i++) {
+          const x = startX + dir.x * i;
+          const y = startY + dir.y * i;
+          gridData[y][x] = word[i];
+        }
+        wordPositions[word] = positions;
+        return;
       }
     }
 
-    function selectCell(cell) {
-      if (!cell.classList.contains("selected")) {
-        cell.classList.add("selected");
-        selectedCells.push(cell);
-      } else {
-        cell.classList.remove("selected");
-        selectedCells = selectedCells.filter(c => c !== cell);
+    function fillGrid() {
+      wordList.forEach(placeWord);
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          if (gridData[y][x] === "") {
+            gridData[y][x] = String.fromCharCode(1040 + Math.floor(Math.random() * 32));
+          }
+        }
       }
+    }
 
-      const selectedWord = selectedCells.map(c => c.textContent).join("");
-      if (words.includes(selectedWord)) {
-        selectedCells.forEach(c => {
-          c.classList.remove("selected");
-          c.classList.add("correct");
-          c.removeEventListener("click", () => selectCell(c));
+    function renderGrid() {
+      const gridElement = document.getElementById("grid");
+      gridElement.innerHTML = "";
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.textContent = gridData[y][x];
+          cell.dataset.x = x;
+          cell.dataset.y = y;
+          cell.addEventListener("click", () => toggleSelect(cell));
+          gridElement.appendChild(cell);
+        }
+      }
+    }
+
+    let selectedCells = [];
+
+    function toggleSelect(cell) {
+      const x = +cell.dataset.x;
+      const y = +cell.dataset.y;
+      if (selectedCells.some(c => c.x === x && c.y === y)) return;
+      cell.classList.add("selected");
+      selectedCells.push({ x, y, char: gridData[y][x] });
+      checkWord();
+    }
+
+    function checkWord() {
+      const word = selectedCells.map(c => c.char).join("");
+      if (wordList.includes(word) && !foundWords.includes(word)) {
+        wordPositions[word].forEach(pos => {
+          const cell = document.querySelector(`.cell[data-x='${pos.x}'][data-y='${pos.y}']`);
+          cell.classList.add("correct");
+          cell.classList.remove("selected");
         });
+        foundWords.push(word);
         score += 10;
-        scoreDisplay.textContent = `Ұпай: ${score}`;
+        document.getElementById("score").textContent = `Ұпай: ${score}`;
+        if (foundWords.length === wordList.length) {
+          document.getElementById("congrats").style.display = "block";
+        }
+        selectedCells = [];
+      } else if (word.length > 10) {
+        selectedCells.forEach(c => {
+          const cell = document.querySelector(`.cell[data-x='${c.x}'][data-y='${c.y}']`);
+          cell.classList.remove("selected");
+        });
         selectedCells = [];
       }
     }
 
-    function useHint(index) {
-      alert(`Көмек ${index + 1}: Бір сөз - ${words[index]}`);
-      document.getElementById(`hint${index}`).disabled = true;
+    function useHint() {
+      for (let word of wordList) {
+        if (!hintsUsed.includes(word) && !foundWords.includes(word)) {
+          wordPositions[word].forEach(pos => {
+            const cell = document.querySelector(`.cell[data-x='${pos.x}'][data-y='${pos.y}']`);
+            cell.classList.add("selected");
+          });
+          hintsUsed.push(word);
+          checkWord();
+          break;
+        }
+      }
     }
 
-    generateGrid();
+    fillGrid();
+    renderGrid();
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
 
     // Сәйкестендіру логикасы
-    const sources = document.querySelectorAll(".match-item");
-    const targets = document.querySelectorAll(".match-target");
+const definitions = [
+    { text: "Амудария сағасында орналасқан", accept: "Хорезм" },
+    { text: "Сауда-саттық пен жазудың орталығы", accept: "Соғды" },
+    { text: "Жібек жолының шығыс тармағы өтетін", accept: "Ферғана" },
+    { text: "Тарихи Ташкент өңірі", accept: "Шаш" },
+    { text: "Су көздеріне бай аймақ", accept: "Жетісу" },
+  ];
 
-    sources.forEach(source => {
-      source.addEventListener("dragstart", e => {
-        e.dataTransfer.setData("text/plain", source.dataset.match);
-        source.classList.add("dragging");
-      });
+  const targetsContainer = document.querySelector(".match-targets");
+  const items = document.querySelectorAll(".match-item");
+
+  // Шатастырып орналастыру:
+  const shuffled = definitions.sort(() => 0.5 - Math.random());
+  shuffled.forEach(def => {
+    const div = document.createElement("div");
+    div.className = "match-target";
+    div.textContent = def.text;
+    div.dataset.accept = def.accept;
+    div.dataset.filled = "false";
+    targetsContainer.appendChild(div);
+  });
+
+  items.forEach(item => {
+    item.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("text/plain", item.dataset.match);
+      e.dataTransfer.setData("id", item.id);
+    });
+  });
+
+  document.querySelectorAll(".match-target").forEach(target => {
+    target.addEventListener("dragover", e => e.preventDefault());
+    target.addEventListener("drop", e => {
+      e.preventDefault();
+      if (target.dataset.filled === "true") return;
+
+      const text = e.dataTransfer.getData("text/plain");
+      const id = e.dataTransfer.getData("id");
+      const draggedEl = document.getElementById(id);
+
+      if (!draggedEl) return;
+
+      const dropped = document.createElement("div");
+      dropped.textContent = text;
+      dropped.className = "match-item";
+      dropped.draggable = false;
+      target.appendChild(dropped);
+
+      target.dataset.dropped = text;
+      target.dataset.filled = "true";
+
+      // Сөз енді көрінбейді
+      draggedEl.style.display = "none";
+    });
+  });
+
+  function checkMatches() {
+    let correct = 0;
+    document.querySelectorAll(".match-target").forEach(t => {
+      t.classList.remove("matched", "incorrect");
+      if (t.dataset.dropped === t.dataset.accept) {
+        t.classList.add("matched");
+        correct++;
+      } else {
+        t.classList.add("incorrect");
+      }
+    });
+    alert(`Дұрыс сәйкестік: ${correct}/${definitions.length}`);
+  }
+
+  function resetMatches() {
+    // Reset targets
+    document.querySelectorAll(".match-target").forEach(t => {
+      t.innerHTML = t.textContent = definitions.find(d => d.accept === t.dataset.accept).text;
+      t.dataset.filled = "false";
+      t.dataset.dropped = "";
+      t.classList.remove("matched", "incorrect");
     });
 
-    targets.forEach(target => {
-      target.addEventListener("dragover", e => e.preventDefault());
-      target.addEventListener("drop", e => {
-        e.preventDefault();
-        const data = e.dataTransfer.getData("text/plain");
-        if (target.dataset.accept === data) {
-          target.classList.add("matched");
-          target.textContent += ` — ${data}`;
-        } else {
-          target.classList.add("incorrect");
-        }
-      });
+    // Reset items
+    document.querySelectorAll(".match-item").forEach(i => {
+      i.style.display = "inline-block";
     });
+  }
 
-    function checkMatches() {
-      targets.forEach(t => {
-        if (!t.classList.contains("matched")) t.classList.add("incorrect");
-      });
-    }
-
-    function resetMatches() {
-      targets.forEach(t => {
-        t.classList.remove("matched", "incorrect");
-        t.textContent = t.dataset.accept === "Хорезм" ? "Амудария сағасында орналасқан"
-          : t.dataset.accept === "Соғды" ? "Сауда-саттық пен жазудың орталығы"
-          : t.dataset.accept === "Ферғана" ? "Жібек жолының шығыс тармағы өтетін"
-          : t.dataset.accept === "Шаш" ? "Тарихи Ташкент өңірі"
-          : "Су көздеріне бай аймақ";
-      });
-    }
 
     // Тест және Иә/Жоқ сұрақтары
     const testQuestions = [
@@ -321,6 +520,24 @@
 
     renderTest();
     renderYesNo();
+    function showFinalResult() {
+  const total = 10 + 5 + 10 + 5;
+  const correctTest = document.getElementById("test-feedback").innerText.match(/\d+/g);
+  const correctYesNo = document.getElementById("yesno-feedback").innerText.match(/\d+/g);
+  let correct = 0;
+
+  if (correctTest) correct += parseInt(correctTest[0]);
+  if (correctYesNo) correct += parseInt(correctYesNo[0]);
+
+  // Филворд пен сәйкестендіру бағасын қосыңыз
+  correct += foundWords.length;
+  document.querySelectorAll(".match-target").forEach(t => {
+    if (t.classList.contains("matched")) correct++;
+  });
+
+  document.getElementById("final-result").innerText = `Жалпы дұрыс жауаптар: ${correct} / ${total}`;
+}
+
   </script>
 </body>
 </html>
