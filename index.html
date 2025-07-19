@@ -2,7 +2,7 @@
 <html lang="kk">
 <head>
   <meta charset="UTF-8">
-  <title>Филворд және Сәйкестендіру</title>
+  <title>Интерактивті Бет</title>
   <style>
     body {
       font-family: sans-serif;
@@ -10,11 +10,15 @@
       padding: 20px;
       text-align: center;
     }
-    h1 {
+    h1, h2 {
       color: #4b0082;
     }
     .section {
-      margin-bottom: 50px;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 0 10px #ccc;
     }
     .grid {
       display: grid;
@@ -45,16 +49,13 @@
     .cell.correct {
       background-color: #90ee90;
     }
-    #word-list, #score, #hints {
-      margin-top: 20px;
-    }
-    .hint-button {
-      padding: 8px 16px;
-      margin: 5px;
+    .hint-button, button {
+      padding: 10px 20px;
       background-color: #4b0082;
       color: white;
       border: none;
       border-radius: 5px;
+      margin: 10px 5px;
       cursor: pointer;
     }
     .hint-button:disabled {
@@ -99,9 +100,15 @@
       background-color: #f88 !important;
       border: 2px solid red;
     }
+    .feedback {
+      font-weight: bold;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Филворд -->
   <div class="section">
     <h1>Филворд: Ежелгі аймақтарды тап!</h1>
     <div class="grid" id="grid"></div>
@@ -116,6 +123,7 @@
     <div id="score">Ұпай: 0</div>
   </div>
 
+  <!-- Сәйкестендіру -->
   <div class="section">
     <h1>Сәйкестендіру: Аймақ пен сипаттаманы сәйкестендір</h1>
     <div class="match-container">
@@ -138,7 +146,23 @@
     <button onclick="resetMatches()" class="hint-button">Болдырмау</button>
   </div>
 
+  <!-- Тест және Иә/Жоқ -->
+  <div class="section">
+    <h2>Тест Сұрақтары</h2>
+    <div id="test-questions"></div>
+    <button onclick="checkTestAnswers()">Тексеру</button>
+    <div id="test-feedback" class="feedback"></div>
+  </div>
+
+  <div class="section">
+    <h2>Иә / Жоқ Сұрақтары</h2>
+    <div id="yesno-questions"></div>
+    <button onclick="checkYesNoAnswers()">Тексеру</button>
+    <div id="yesno-feedback" class="feedback"></div>
+  </div>
+
   <script>
+    // Филворд
     const words = ["ХОРЕЗМ", "СОГДЫ", "ФЕРГАНА", "ШАШ", "СЫРДАРИЯ", "ЖЕТІСУ"];
     const gridSize = 9;
     const grid = document.getElementById("grid");
@@ -185,6 +209,118 @@
     }
 
     generateGrid();
+
+    // Сәйкестендіру логикасы
+    const sources = document.querySelectorAll(".match-item");
+    const targets = document.querySelectorAll(".match-target");
+
+    sources.forEach(source => {
+      source.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", source.dataset.match);
+        source.classList.add("dragging");
+      });
+    });
+
+    targets.forEach(target => {
+      target.addEventListener("dragover", e => e.preventDefault());
+      target.addEventListener("drop", e => {
+        e.preventDefault();
+        const data = e.dataTransfer.getData("text/plain");
+        if (target.dataset.accept === data) {
+          target.classList.add("matched");
+          target.textContent += ` — ${data}`;
+        } else {
+          target.classList.add("incorrect");
+        }
+      });
+    });
+
+    function checkMatches() {
+      targets.forEach(t => {
+        if (!t.classList.contains("matched")) t.classList.add("incorrect");
+      });
+    }
+
+    function resetMatches() {
+      targets.forEach(t => {
+        t.classList.remove("matched", "incorrect");
+        t.textContent = t.dataset.accept === "Хорезм" ? "Амудария сағасында орналасқан"
+          : t.dataset.accept === "Соғды" ? "Сауда-саттық пен жазудың орталығы"
+          : t.dataset.accept === "Ферғана" ? "Жібек жолының шығыс тармағы өтетін"
+          : t.dataset.accept === "Шаш" ? "Тарихи Ташкент өңірі"
+          : "Су көздеріне бай аймақ";
+      });
+    }
+
+    // Тест және Иә/Жоқ сұрақтары
+    const testQuestions = [
+      { question: "Неолит төңкерісінің себептері қандай?", options: ["Малды қолға үйрету", "Құралды қолдану", "Халық санының артуы және өндірістік дағдарыс", "Сауда-саттықтың дамуы"], correct: 2 },
+      { question: "Неолиттік төңкерістің маңызды қадамы:", options: ["Қару жасау", "Егіншілік пен отырықшылық", "Тілдің дамуы", "Сауда-саттық"], correct: 1 },
+      { question: "Орталық Азияда алғаш егіншілікпен айналысқан кімдер?", options: ["Маргуштар", "Бактриялықтар", "Жейтундықтар", "Соғдылар"], correct: 2 },
+      { question: "Энеолит дәуірінде не дамыды?", options: ["Металл өңдеу", "Суармалы егіншілік", "Күйме арбалар", "Жазу жазу"], correct: 1 },
+      { question: "Мал жайылымда бағылған уақыт:", options: ["Б.з.б. I мыңжылдық", "Б.з.б. III мыңжылдық екінші жартысы", "Б.з.б. IV ғасыр", "Б.з.д. II ғасыр"], correct: 1 },
+      { question: "Көшпелі және отырықшы мәдениеттің дамуына не себеп?", options: ["Аңшылық", "Өндіруші экономиканың пайда болуы", "Су көздерінің аздығы", "Сауда керуендері"], correct: 1 },
+      { question: "Маргуш мәдениеті қай уақытта пайда болды?", options: ["Б.з.б. I ғасыр", "Б.з.б. XVIII–XIII ғғ.", "Б.з.д. VII ғ.", "Б.з.б. IV ғ."], correct: 1 },
+      { question: "Маргуш мәдениетін басқаша қалай атайды?", options: ["Сақ өркениеті", "Заратуштра өркениеті", "Окс өркениеті", "Тигр өркениеті"], correct: 2 },
+      { question: "Шаштың солтүстігін алып жатқан аймақ?", options: ["Жетісу", "Соғды", "Сырдария", "Ферғана"], correct: 2 },
+      { question: "Ұлы Даланың аумағы қандай?", options: ["Енисейден Жапон теңізіне дейін", "Дунайдан Алтай мен Маньчжурияға дейін", "Аралдан Жетісуға дейін", "Түркістаннан Иранға дейін"], correct: 1 }
+    ];
+
+    const yesNoQuestions = [
+      { question: "Неолит дәуірінде металл балқыту меңгерілді.", answer: false },
+      { question: "Жейтундықтар дәнді дақылдарды өсірген.", answer: true },
+      { question: "Маргуш мәдениеті Жетісуда пайда болды.", answer: false },
+      { question: "Суармалы егіншілік энеолитте басталды.", answer: true },
+      { question: "Соғды аймағы мал шаруашылығымен ғана шұғылданды.", answer: false }
+    ];
+
+    function renderTest() {
+      const container = document.getElementById("test-questions");
+      container.innerHTML = "";
+      testQuestions.forEach((q, i) => {
+        const div = document.createElement("div");
+        div.innerHTML = `<p>${i+1}. ${q.question}</p>`;
+        q.options.forEach((opt, j) => {
+          div.innerHTML += `<label><input type="radio" name="q${i}" value="${j}"> ${opt}</label><br>`;
+        });
+        container.appendChild(div);
+      });
+    }
+
+    function checkTestAnswers() {
+      let correct = 0;
+      testQuestions.forEach((q, i) => {
+        const val = document.querySelector(`input[name="q${i}"]:checked`);
+        if (val && parseInt(val.value) === q.correct) correct++;
+      });
+      document.getElementById("test-feedback").innerText = `Дұрыс жауаптар: ${correct} / ${testQuestions.length}`;
+    }
+
+    function renderYesNo() {
+      const container = document.getElementById("yesno-questions");
+      container.innerHTML = "";
+      yesNoQuestions.forEach((q, i) => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+          <p>${i+1}. ${q.question}</p>
+          <label><input type="radio" name="yn${i}" value="true"> Иә</label>
+          <label><input type="radio" name="yn${i}" value="false"> Жоқ</label>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function checkYesNoAnswers() {
+      let correct = 0;
+      yesNoQuestions.forEach((q, i) => {
+        const val = document.querySelector(`input[name="yn${i}"]:checked`);
+        if (val && val.value === q.answer.toString()) correct++;
+      });
+      document.getElementById("yesno-feedback").innerText = `Дұрыс жауаптар: ${correct} / ${yesNoQuestions.length}`;
+    }
+
+    renderTest();
+    renderYesNo();
   </script>
 </body>
 </html>
