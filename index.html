@@ -114,6 +114,20 @@ h2 {
   flex-wrap: wrap;
   gap: 10px;
 }
+.score-summary {
+  margin-top: 20px;
+  padding: 12px;
+  background: #f8e6ff;
+  border: 1px solid #d7b5ff;
+  border-radius: 10px;
+  font-size: 16px;
+  color: #33003d;
+  max-width: 320px;
+}
+
+.score-summary p {
+  margin: 6px 0;
+}
 
 /* ✅ Мобильді бейімделген стильдер */
 @media screen and (max-width: 600px) {
@@ -131,7 +145,14 @@ h2 {
     font-size: 20px;
     text-align: center;
   }
+ .score-summary {
+    font-size: 15px;
+    padding: 10px;
+  }
 
+  .score-summary p {
+    margin: 4px 0;
+  }
   .hint-button, .question button {
     width: 100%;
     margin-bottom: 8px;
@@ -232,6 +253,14 @@ h2 {
       <h2>Қорытынды</h2>
       <button class="hint-button" onclick="updateScoreDisplay()">Қорытындыны көру</button>
       <p id="final-result"></p>
+      <div class="score-summary">
+  <p><strong>Сәйкестендіру:</strong> <span id="match-score">0</span> балл</p>
+  <p><strong>Иә/Жоқ:</strong> <span id="truefalse-score">0</span> балл</p>
+  <p><strong>Тест:</strong> <span id="test-score">0</span> балл</p>
+  <p><strong>Филворд:</strong> <span id="filword-score">0</span> балл</p>
+  <p><strong>Жалпы ұпай:</strong> <span id="total-score">0</span> балл</p>
+</div>
+
     </section>
 
   </main>
@@ -496,11 +525,18 @@ const yesNoQuestions = [
     }
 
     // ================= ҚОРЫТЫНДЫ ===================
-    function updateScoreDisplay() {
-      const total = scoreMatching + scoreYesNo + scoreTest + scoreFilword;
-      document.getElementById("final-result").textContent =
-        `Сәйкестендіру: ${scoreMatching} балл\nИә/Жоқ: ${scoreYesNo} балл\nТест: ${scoreTest} балл\nФилворд: ${scoreFilword} балл\nЖалпы ұпай: ${total} балл`;
-    }
+   function updateScoreDisplay() {
+  document.getElementById("match-score").textContent = matchScore;
+  document.getElementById("truefalse-score").textContent = trueFalseScore;
+  document.getElementById("test-score").textContent = testScore;
+  document.getElementById("filword-score").textContent = filwordScore;
+
+  const total = matchScore + trueFalseScore + testScore + filwordScore;
+  document.getElementById("total-score").textContent = total;
+
+  document.getElementById("final-result").textContent = `Жалпы ұпайыңыз: ${total} балл`;
+}
+
 
     // Бастапқы жүктеу
     window.onload = () => {
