@@ -139,15 +139,18 @@ h2 {
     padding: 10px;
   }
 
-  .grid {
-    grid-template-columns: repeat(6, 36px);
-    gap: 4px;
-  }
+.grid-wrapper {
+  overflow-x: auto;
+}
+
+.grid {
+  width: max-content;
+}
 
   .cell {
-    width: 36px;
-    height: 36px;
-    font-size: 14px;
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
   }
 
   .match-item, .match-target {
@@ -177,20 +180,26 @@ h2 {
 
   <main>
 
-    <!-- Филворд -->
-    <section id="filword" class="section">
-      <h2>Филворд: Ежелгі аймақтарды тап!</h2>
-      <div class="grid" id="grid"></div>
-      <div><strong>Мына сұрақтарға жауап беріп, сөздерді табыңыз:</strong>
-        <hr>1. Әмір Темір толық бағындырған аймақ?
-        <hr>2. Қытаймен дипломатиялық байланыс орнатқан "қанатты аттар" елі?
-        <hr>3. Тау арасындағы ойпат?
-        <hr>4. "Ташкент" көне атауы?
-        <hr>5. Қаңлылар егіншілікпен айналысқан өзен бойы?
-        <hr>6. Ұлы жүз мекендеген аймақ?
-      </div>
-      <button id="hint-btn" class="hint-button" onclick="useHint()">Көмек</button>
-    </section>
+   <!-- Филворд -->
+<section id="filword" class="section">
+  <h2>Филворд: Ежелгі аймақтарды тап!</h2>
+  <div class="grid-wrapper">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div>
+    <strong>Мына сұрақтарға жауап беріп, сөздерді табыңыз:</strong>
+    <hr>1. Әмір Темір толық бағындырған аймақ?
+    <hr>2. Қытаймен дипломатиялық байланыс орнатқан "қанатты аттар" елі?
+    <hr>3. Тау арасындағы ойпат?
+    <hr>4. "Ташкент" көне атауы?
+    <hr>5. Қаңлылар егіншілікпен айналысқан өзен бойы?
+    <hr>6. Ұлы жүз мекендеген аймақ?
+  </div>
+
+  <button id="hint-btn" class="hint-button" onclick="useHint()">Көмек</button>
+</section>
+
 
     <!-- Сәйкестендіру -->
     <section id="match" class="section">
