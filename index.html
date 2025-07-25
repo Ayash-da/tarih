@@ -254,16 +254,21 @@ h2 {
       <button class="hint-button" onclick="updateScoreDisplay()">Қорытындыны көру</button>
       <p id="final-result"></p>
       <div class="score-summary">
-  <p><strong>Сәйкестендіру:</strong> <span id="match-score">0</span> балл</p>
-  <p><strong>Иә/Жоқ:</strong> <span id="truefalse-score">0</span> балл</p>
-  <p><strong>Тест:</strong> <span id="test-score">0</span> балл</p>
-  <p><strong>Филворд:</strong> <span id="filword-score">0</span> балл</p>
-  <p><strong>Жалпы ұпай:</strong> <span id="total-score">0</span> балл</p>
+<p>Филвордтан ұпай: <span id="filword-score">0</span></p>
+<p>Сәйкестендіруден ұпай: <span id="match-score">0</span></p>
+<p>Тесттен ұпай: <span id="test-score">0</span></p>
+<p>Иә/Жоқ сұрақтарынан ұпай: <span id="truefalse-score">0</span></p>
+<p>Жалпы ұпай: <span id="total-score">0</span></p>
+<h3 id="final-result">Нәтиже осында көрсетіледі</h3>
+
 </div>
 
     </section>
+<button class="hint-button" onclick="resetAll()">Бәрін қайта бастау</button>
 
   </main>
+<audio id="correctSound" src="correct.mp3" preload="auto"></audio>
+<audio id="wrongSound" src="wrong.mp3" preload="auto"></audio>
 
   <!-- СКРИПТ -->
   <script>
@@ -363,8 +368,11 @@ h2 {
           hintsUsed.push(word);
           checkWord();
           break;
+    
         }
       }
+      if (hintsUsed.length >= 3) return alert("Барлық көмекті қолдандыңыз!");
+
     }
 
     // ================= СӘЙКЕСТЕНДІРУ ===================
@@ -525,16 +533,70 @@ const yesNoQuestions = [
     }
 
     // ================= ҚОРЫТЫНДЫ ===================
-   function updateScoreDisplay() {
-  document.getElementById("match-score").textContent = matchScore;
-  document.getElementById("truefalse-score").textContent = trueFalseScore;
-  document.getElementById("test-score").textContent = testScore;
-  document.getElementById("filword-score").textContent = filwordScore;
+function updateScoreDisplay() {
+  document.getElementById("match-score").textContent = scoreMatching;
+  document.getElementById("truefalse-score").textContent = scoreYesNo;
+  document.getElementById("test-score").textContent = scoreTest;
+  document.getElementById("filword-score").textContent = scoreFilword;
 
-  const total = matchScore + trueFalseScore + testScore + filwordScore;
+  const total = scoreMatching + scoreYesNo + scoreTest + scoreFilword;
   document.getElementById("total-score").textContent = total;
 
   document.getElementById("final-result").textContent = `Жалпы ұпайыңыз: ${total} балл`;
+}
+
+function resetAll() {
+  scoreMatching = 0;
+  scoreYesNo = 0;
+  scoreTest = 0;
+  scoreFilword = 0;
+  foundWords = [];
+  hintsUsed = [];
+  selectedCells = [];
+  fillGrid();
+  renderGrid();
+  renderMatching();
+  document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
+  document.querySelectorAll('[id^=result]').forEach(el => el.textContent = "");
+  updateScoreDisplay();
+  alert("Барлығы қайта басталды");
+}
+function saveScore() {
+  localStorage.setItem('scoreData', JSON.stringify({
+    matching: scoreMatching,
+    test: scoreTest,
+    yesno: scoreYesNo,
+    filword: scoreFilword
+  }));
+}
+
+function loadScore() {
+  const data = JSON.parse(localStorage.getItem('scoreData'));
+  if (data) {
+    scoreMatching = data.matching;
+    scoreTest = data.test;
+    scoreYesNo = data.yesno;
+    scoreFilword = data.filword;
+    updateScoreDisplay();
+  }
+}
+
+window.onload = function () {
+  loadScore();
+};
+function playSound(correct = true) {
+  const sound = correct ? document.getElementById("correctSound") : document.getElementById("wrongSound");
+  sound.play();
+}
+function showFinalScore() {
+  const total = scoreMatching + scoreTest + scoreYesNo + scoreFilword;
+  let grade = '';
+  if (total >= 45) grade = 'Өте жақсы 👏';
+  else if (total >= 30) grade = 'Жақсы 🙂';
+  else if (total >= 15) grade = 'Орташа 😐';
+  else grade = 'Қайта орындап көріңіз 😢';
+
+  document.getElementById("final-result").textContent = `Жалпы ұпайыңыз: ${total} балл. Баға: ${grade}`;
 }
 
 
@@ -543,6 +605,7 @@ const yesNoQuestions = [
       fillGrid();
       renderGrid();
       renderMatching();
+     updateScoreDisplay();
     };
   </script>
 </body>
