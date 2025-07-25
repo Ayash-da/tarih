@@ -1,26 +1,57 @@
 <!DOCTYPE html>
 <html lang="kk">
+
 <head>
   <meta charset="UTF-8">
-  <title>Интерактивті Бет</title>
+  <title>Ежелгі аймақтар - Интерактивті бет</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background-color: #f0f0ff;
-      padding: 20px;
-      text-align: center;
-    }
-    h1, h2 {
+    h2 {
       color: #4b0082;
     }
-    .section {
-      background-color: white;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 0 10px #ccc;
+
+    .matched {
+      background: lightgreen;
     }
-    
+
+     .match-item, .match-target {
+      padding: 10px;
+      border: 1px solid #999;
+      margin-bottom: 10px;
+      background-color: #f9f9f9;
+      cursor: move;
+      border-radius: 5px;
+    }
+
+    .match-target.matched {
+      background-color: #d4edda;
+    }
+
+    .match-target.incorrect {
+      background-color: #f8d7da;
+    }
+
+    .hint-button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      margin-right: 10px;
+      cursor: pointer;}
+
+    body {
+      background: linear-gradient(to bottom, #fef6ff, #f0d9fe);
+      font-family: 'Montserrat', sans-serif;
+      color: #33003d;
+      margin: 0;
+    }
+
+    .section {
+      background: #fff;
+      margin: 20px auto;
+      padding: 20px;
+      max-width: 800px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(10, 40px);
@@ -28,30 +59,38 @@
       justify-content: center;
       margin: 20px 0;
     }
-       .cell {
+
+    .cell {
       background: #f5e8ff;
       border-radius: 10px;
       border: 2px solid #caa4ff;
-      width: 40px; height: 40px;
-      display: flex; justify-content: center; align-items: center;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       font-weight: bold;
       cursor: pointer;
-   
+      transition: background 0.2s, transform 0.1s;
     }
+
     .cell:hover {
       background: #e8d6ff;
       transform: scale(1.05);
     }
+
     .cell.selected {
       background: #d5b3ff;
     }
+
     .cell.correct {
       background: #c0ffef;
       border-color: #2ec4b6;
       pointer-events: none;
     }
+
     .hint-button {
-      background:  #4b0082;
+      background: linear-gradient(90deg, #faafff, #c77dff);
       color: #fff;
       border: none;
       border-radius: 8px;
@@ -60,220 +99,89 @@
       cursor: pointer;
       margin-top: 10px;
     }
- 
-    #score, #congrats {
-      font-size: 18px;
-      margin-top: 10px;
-    }
-    #congrats {
-      display: none;
-      color: #006d2c;
-      font-weight: bold;
-    }
-    
-    .cell {
-      width: 35px;
-      height: 35px;
-      background-color: white;
-      border: 1px solid #ccc;
-      font-size: 18px;
-      text-transform: uppercase;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      color: #000;
-    }
-    .cell.selected {
-      background-color: #ff0;
-    }
-    .cell.correct {
-      background-color: #90ee90;
-    }
-    .hint-button, button {
-      padding: 10px 20px;
-      background-color: #4b0082;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      margin: 10px 5px;
-      cursor: pointer;
-    }
-    .hint-button:disabled {
-      background-color: #aaa;
-      cursor: not-allowed;
-    }
-    .match-container {
-      display: flex;
-      justify-content: center;
-      gap: 50px;
-      margin-top: 30px;
-      flex-wrap: wrap;
-    }
-    .match-item {
-      padding: 10px;
-      background-color: #fff;
-      border: 1px solid #aaa;
-      margin-bottom: 10px;
-      cursor: grab;
-      position: relative;
-    }
-    .match-item::after {
-      content: '\2192';
-      position: absolute;
-      right: -20px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #4b0082;
-    }
-    .match-target {
-      padding: 10px;
-      background-color: #eee;
-      border: 2px dashed #aaa;
-      min-width: 200px;
-      min-height: 30px;
-    }
-    .matched {
-      background-color: #90ee90 !important;
-      border: 2px solid green;
-    }
-    .incorrect {
-      background-color: #f88 !important;
-      border: 2px solid red;
-    }
-    .feedback {
-      font-weight: bold;
-      margin-top: 10px;
-    }
-  @media (max-width: 768px) {
-  body {
-    padding: 10px;
-  }
 
-  .section {
-    padding: 15px;
-    margin-bottom: 20px;
-  }
-
-  .grid {
-    grid-template-columns: repeat(9, 28px);
-    grid-template-rows: repeat(9, 28px);
-    gap: 1px;
-  }
-
-  .cell {
-    width: 28px;
-    height: 28px;
-    font-size: 14px;
-  }
-
-  .match-container {
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .match-target {
-    min-width: unset;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .match-item {
-    font-size: 14px;
-    text-align: center;
-  }
-
-  button, .hint-button {
-    width: 100%;
-    margin: 5px 0;
-    font-size: 16px;
-  }
-
-  #test-questions div,
-  #yesno-questions div {
-    text-align: left;
-  }
-
-  label {
-    display: block;
-    margin: 3px 0;
-  }
-
-  h1, h2 {
-    font-size: 20px;
-  }
-}
+    .hint-button:hover {
+      background: linear-gradient(90deg, #e0aaff, #a658ff);
+    }
+    .cell.wrong {
+     background-color: #f66 !important;}
+     .question { margin-bottom: 20px; }
+    .correct { color: green; }
+    .incorrect { color: red; }
 
   </style>
 </head>
+
 <body>
 
-  <!-- Филворд -->
-  <div class="section">
-    <h1>Филворд: Ежелгі аймақтарды тап!</h1>
-    <div class="grid" id="grid"></div>
-    <div id="word-list">
-      <p><strong>Тап:</strong> Хорезм, Соғды, Ферғана, Шаш, Сырдария, Жетісу</p>
-    </div>
-    <div id="hints">
-      <button class="hint-button" onclick="useHint(0)" id="hint0">Көмек 1</button>
-      <button class="hint-button" onclick="useHint(1)" id="hint1">Көмек 2</button>
-      <button class="hint-button" onclick="useHint(2)" id="hint2">Көмек 3</button>
-    </div>
-    <div id="score">Ұпай: 0</div>
-  </div>
-  <div id="congrats" style="display:none; font-size: 20px; color: green; margin-top: 10px;">
-  Құттықтаймыз! Барлық сөздерді таптыңыз!
-</div>
+  <main>
+    <!-- Филворд -->
+    <section id="filword" class="section">
+      <h2>Филворд: Ежелгі аймақтарды тап!</h2>
+      <div class="grid" id="grid"></div>
+      <div><strong>Сөздерді табу үшін мына сұрақтарға жауап берініз:</strong> <hr>1. Әмір Темірдің 1388 жылғы жорығынан кейін толық бағындырылған Орта Азиядағы тарихи аймақ?<hr>
+         2.Ежелгі Қытай жазбаларында "қанатты аттар" елі ретінде сипатталып, Қытаймен тығыз дипломатиялық қарым-қатынас орнатқан аймақ?<hr>
+         3.Тау арасындағы ойпат?<hr>
+         4.Тарихи деректерде "Ташкент" атауының орнына қолданылған көне атау?<hr>
+         5.Қаңлылардың негізгі мекені болған, орта ағысында егіншілік пен мал шаруашылығы дамыған өзен бойы?<hr>
+         6. XIX ғасырдың екінші жартысында қоныс аудару саясаты күшейген, Ұлы жүздің мекені болған аймақ?
+        </div>
+      <button class="hint-button" onclick="useHint()">Көмек</button>
+    </section>
 
+    <!-- Сәйкестендіру -->
+    <section id="match" class="section">
+      <h2>Сәйкестендіру: Аймақ пен сипаттаманы байланыстыр</h2>
+      <div style="display: flex; justify-content: space-between;">
+        <div id="drag-source" style="width: 45%;">(drag-drop логикасы қосылмаған)</div>
+        <div  id="drop-targets" style="width: 45%;"></div>
+      </div>
+      <button class='hint-button'onclick="submitMatching()">Тексеру</button>
+     
 
-  <!-- Сәйкестендіру -->
-<section id="match" class="section">
-  <h2>Сәйкестендіру</h2>
-  <div class="match-container">
-    <div class="match-items">
-      <div class="match-item" draggable="true" data-match="Хорезм" id="item1">Хорезм</div>
-      <div class="match-item" draggable="true" data-match="Соғды" id="item2">Соғды</div>
-      <div class="match-item" draggable="true" data-match="Ферғана" id="item3">Ферғана</div>
-      <div class="match-item" draggable="true" data-match="Шаш" id="item4">Шаш</div>
-      <div class="match-item" draggable="true" data-match="Жетісу" id="item5">Жетісу</div>
-    </div>
+      <button class="hint-button" onclick="resetMatches()">Қайта бастау</button>
+    </section>
 
-    <div class="match-targets">
-      <!-- JS арқылы рандом түрде генерацияланады -->
-    </div>
-  </div>
-  <button onclick="checkMatches()">Тексеру</button>
-  <button onclick="resetMatches()">Қайта бастау</button>
+    <!-- Тест сұрақтары -->
+   <section id="quiz" class="section">
+  <h2>Тест сұрақтары</h2>
+  <div id="quiz-container"></div>
+  <button class="hint-button" onclick="checkTestAnswers()">Тексеру</button>
+  <button class="hint-button" onclick="submitTest()">Ұпайды есептеу</button>
+  <div id="quizScoreDisplay"></div>
+</section>
+    <section id="yesno" class="section">
+      <h2>Иә/Жоқ сұрақтары</h2>
+      <div id="yesno-container"></div>
+      <button class='hint-button'onclick="submitYesNo()">Тексеру</button>
+    </section>
+
+    <!-- Қорытынды -->
+<section id="final" class="section">
+  <h2>Қорытынды</h2>
+  <button class="hint-button" onclick="showFinalScore()">Қорытындыны көру</button>
+  <p id="final-result"></p>
 </section>
 
-
-  <!-- Тест және Иә/Жоқ -->
-  <div class="section">
-    <h2>Тест Сұрақтары</h2>
-    <div id="test-questions"></div>
-    <button onclick="checkTestAnswers()">Тексеру</button>
-    <div id="test-feedback" class="feedback"></div>
-  </div>
-
-  <div class="section">
-    <h2>Иә / Жоқ Сұрақтары</h2>
-    <div id="yesno-questions"></div>
-    <button onclick="checkYesNoAnswers()">Тексеру</button>
-    <div id="yesno-feedback" class="feedback"></div>
-  </div>
-<button onclick="showFinalResult()">Жалпы Нәтиже</button>
-<div id="final-result" class="feedback"></div>
+  </main>
 
   <script>
-    // Филворд
-   	// <![CDATA[  <-- For SVG support
-       const wordList = ["ХОРЕЗМ", "СОГДЫ", "ФЕРГАНА", "ШАШ", "СЫРДАРИЯ", "ЖЕТІСУ"];
+let score = 0;
+let scoreMatching = 0;
+let scoreYesNo = 0;
+let scoreTest = 0;
+let matchingScore = 0;
+
+
+
+
+  // ============ 1. ФИЛВОРД ============
+  const wordList = ["ХОРЕЗМ", "СОГДЫ", "ФЕРГАНА", "ШАШ", "СЫРДАРИЯ", "ЖЕТІСУ"];
     const gridSize = 10;
     let gridData = Array.from({ length: gridSize }, () => Array(gridSize).fill(""));
     let wordPositions = {};
-    let foundWords = [], score = 0, hintsUsed = [];
+    let foundWords = [], hintsUsed = [];
+  
 
     const directions = [
       { x: 1, y: 0 },
@@ -363,275 +271,269 @@
           document.getElementById("congrats").style.display = "block";
         }
         selectedCells = [];
-      } else if (word.length > 10) {
+      } else if (word.length > 10 || !wordList.some(w => w.startsWith(word))) {
         selectedCells.forEach(c => {
           const cell = document.querySelector(`.cell[data-x='${c.x}'][data-y='${c.y}']`);
           cell.classList.remove("selected");
+          cell.classList.add("wrong");
+          setTimeout(() => cell.classList.remove("wrong"), 300);
         });
         selectedCells = [];
       }
     }
 
-    function useHint() {
-      for (let word of wordList) {
-        if (!hintsUsed.includes(word) && !foundWords.includes(word)) {
-          wordPositions[word].forEach(pos => {
-            const cell = document.querySelector(`.cell[data-x='${pos.x}'][data-y='${pos.y}']`);
-            cell.classList.add("selected");
-          });
-          hintsUsed.push(word);
-          checkWord();
-          break;
-        }
-      }
+   function useHint() {
+  if (foundWords.length + hintsUsed.length >= wordList.length) {
+  document.getElementById("hint-btn").disabled = true;
+}
+
+  for (let word of wordList) {
+    if (!hintsUsed.includes(word) && !foundWords.includes(word)) {
+      console.log("Көмек берілетін сөз:", word, wordPositions[word]);
+
+      wordPositions[word].forEach(pos => {
+        const cell = document.querySelector(`.cell[data-x='${pos.x}'][data-y='${pos.y}']`);
+        cell.classList.add("selected");
+      });
+
+      hintsUsed.push(word);
+      checkWord();
+      break;
     }
+  }
+}
+function updateScoreDisplay() {
+  const finalText = `
+Сәйкестендіру: ${scoreMatching} балл  
+Иә/Жоқ: ${scoreYesNo} балл  
+Тест: ${scoreTest} балл  
+Филворд: ${scoreFilword} балл  
+Жалпы ұпай: ${scoreMatching + scoreYesNo + scoreTest + scoreFilword} балл`;
+  document.getElementById("final-result").textContent = finalText;
+}
+
+
 
     fillGrid();
     renderGrid();
-	if ('WebSocket' in window) {
-		(function () {
-			function refreshCSS() {
-				var sheets = [].slice.call(document.getElementsByTagName("link"));
-				var head = document.getElementsByTagName("head")[0];
-				for (var i = 0; i < sheets.length; ++i) {
-					var elem = sheets[i];
-					var parent = elem.parentElement || head;
-					parent.removeChild(elem);
-					var rel = elem.rel;
-					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
-						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
-						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
-					}
-					parent.appendChild(elem);
-				}
-			}
-			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
-			var address = protocol + window.location.host + window.location.pathname + '/ws';
-			var socket = new WebSocket(address);
-			socket.onmessage = function (msg) {
-				if (msg.data == 'reload') window.location.reload();
-				else if (msg.data == 'refreshcss') refreshCSS();
-			};
-			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
-				console.log('Live reload enabled.');
-				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
-			}
-		})();
-	}
-	else {
-		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
-	}
-	// ]]>
+  // ============ 2. СӘЙКЕСТЕНДІРУ ============
 
-    // Сәйкестендіру логикасы
-const definitions = [
-    { text: "Амудария сағасында орналасқан", accept: "Хорезм" },
-    { text: "Сауда-саттық пен жазудың орталығы", accept: "Соғды" },
-    { text: "Жібек жолының шығыс тармағы өтетін", accept: "Ферғана" },
-    { text: "Тарихи Ташкент өңірі", accept: "Шаш" },
-    { text: "Су көздеріне бай аймақ", accept: "Жетісу" },
+  const matchItems = [
+    { name: "Гонур", description: "*Б.З.Б ІІ мыңжылдықта Маргуш мәдениетінің астанасы" },
+    { name: "Алматы", description: "Жетісу өлкесінің астанасы" },
+    { name: "Битөбе", description: "Керейіт мемлекетінің ордасы?" },
+    { name: "Қарақорым", description: "Монғол империясының орталығы" },
+    { name: "Ғұз", description: "Қарақытай мемлекетінің ордасы" }
   ];
 
-  const targetsContainer = document.querySelector(".match-targets");
-  const items = document.querySelectorAll(".match-item");
 
-  // Шатастырып орналастыру:
-  const shuffled = definitions.sort(() => 0.5 - Math.random());
-  shuffled.forEach(def => {
-    const div = document.createElement("div");
-    div.className = "match-target";
-    div.textContent = def.text;
-    div.dataset.accept = def.accept;
-    div.dataset.filled = "false";
-    targetsContainer.appendChild(div);
-  });
+  function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+  }
 
-  items.forEach(item => {
-    item.addEventListener("dragstart", e => {
-      e.dataTransfer.setData("text/plain", item.dataset.match);
-      e.dataTransfer.setData("id", item.id);
+  function renderMatching() {
+    const sourceContainer = document.getElementById("drag-source");
+    const targetContainer = document.getElementById("drop-targets");
+    sourceContainer.innerHTML = "";
+    targetContainer.innerHTML = "";
+
+    const shuffledItems = shuffle([...matchItems]);
+    const shuffledDescriptions = shuffle([...matchItems]);
+
+    shuffledItems.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "match-item";
+      div.draggable = true;
+      div.dataset.match = item.name;
+      div.textContent = item.name;
+
+      div.addEventListener("dragstart", e => {
+        e.dataTransfer.setData("text/plain", item.name);
+      });
+
+      sourceContainer.appendChild(div);
     });
-  });
 
-  document.querySelectorAll(".match-target").forEach(target => {
-    target.addEventListener("dragover", e => e.preventDefault());
-    target.addEventListener("drop", e => {
-      e.preventDefault();
-      if (target.dataset.filled === "true") return;
+    shuffledDescriptions.forEach(item => {
+      const target = document.createElement("div");
+      target.className = "match-target";
+      target.dataset.accept = item.name;
+      target.textContent = item.description;
 
-      const text = e.dataTransfer.getData("text/plain");
-      const id = e.dataTransfer.getData("id");
-      const draggedEl = document.getElementById(id);
+      target.addEventListener("dragover", e => e.preventDefault());
 
-      if (!draggedEl) return;
+      target.addEventListener("drop", e => {
+        e.preventDefault();
+        const data = e.dataTransfer.getData("text/plain");
 
-      const dropped = document.createElement("div");
-      dropped.textContent = text;
-      dropped.className = "match-item";
-      dropped.draggable = false;
-      target.appendChild(dropped);
+        if (target.textContent.includes("—")) return;
 
-      target.dataset.dropped = text;
-      target.dataset.filled = "true";
+        if (target.dataset.accept === data) {
+          target.classList.add("matched");
+          target.textContent += ` — ${data}`;
+          matchingScore += 1;
+          updateScoreDisplay();
+        } else {
+          target.classList.add("incorrect");
+        }
+      });
 
-      // Сөз енді көрінбейді
-      draggedEl.style.display = "none";
+      targetContainer.appendChild(target);
     });
-  });
 
-  function checkMatches() {
-    let correct = 0;
-    document.querySelectorAll(".match-target").forEach(t => {
-      t.classList.remove("matched", "incorrect");
-      if (t.dataset.dropped === t.dataset.accept) {
-        t.classList.add("matched");
-        correct++;
-      } else {
-        t.classList.add("incorrect");
-      }
-    });
-    alert(`Дұрыс сәйкестік: ${correct}/${definitions.length}`);
+    updateScoreDisplay();
+  }
+
+  function updateScoreDisplay() {
+    const scoreEl = document.getElementById("score-matching");
+    if (scoreEl) {
+      scoreEl.textContent = `Сәйкестендіру ұпайы: ${matchingScore * 2}`;
+    }
+  }
+
+  function submitMatching() {
+    const total = matchItems.length;
+    const earned = matchingScore * 2;
+    alert(`✅ Сәйкестендіру бөлімінен ${matchingScore} дұрыс жауап. Ұпай: ${earned} / ${total * 2}`);
   }
 
   function resetMatches() {
-    // Reset targets
-    document.querySelectorAll(".match-target").forEach(t => {
-      t.innerHTML = t.textContent = definitions.find(d => d.accept === t.dataset.accept).text;
-      t.dataset.filled = "false";
-      t.dataset.dropped = "";
-      t.classList.remove("matched", "incorrect");
-    });
-
-    // Reset items
-    document.querySelectorAll(".match-item").forEach(i => {
-      i.style.display = "inline-block";
-    });
+    matchingScore = 0;
+    renderMatching();
   }
 
-
-    // Тест және Иә/Жоқ сұрақтары
-    const testQuestions = [
-      { question: "Неолит төңкерісінің себептері қандай?", options: ["Малды қолға үйрету", "Құралды қолдану", "Халық санының артуы және өндірістік дағдарыс", "Сауда-саттықтың дамуы"], correct: 2 },
-      { question: "Неолиттік төңкерістің маңызды қадамы:", options: ["Қару жасау", "Егіншілік пен отырықшылық", "Тілдің дамуы", "Сауда-саттық"], correct: 1 },
-      { question: "Орталық Азияда алғаш егіншілікпен айналысқан кімдер?", options: ["Маргуштар", "Бактриялықтар", "Жейтундықтар", "Соғдылар"], correct: 2 },
-      { question: "Энеолит дәуірінде не дамыды?", options: ["Металл өңдеу", "Суармалы егіншілік", "Күйме арбалар", "Жазу жазу"], correct: 1 },
-      { question: "Мал жайылымда бағылған уақыт:", options: ["Б.з.б. I мыңжылдық", "Б.з.б. III мыңжылдық екінші жартысы", "Б.з.б. IV ғасыр", "Б.з.д. II ғасыр"], correct: 1 },
-      { question: "Көшпелі және отырықшы мәдениеттің дамуына не себеп?", options: ["Аңшылық", "Өндіруші экономиканың пайда болуы", "Су көздерінің аздығы", "Сауда керуендері"], correct: 1 },
-      { question: "Маргуш мәдениеті қай уақытта пайда болды?", options: ["Б.з.б. I ғасыр", "Б.з.б. XVIII–XIII ғғ.", "Б.з.д. VII ғ.", "Б.з.б. IV ғ."], correct: 1 },
-      { question: "Маргуш мәдениетін басқаша қалай атайды?", options: ["Сақ өркениеті", "Заратуштра өркениеті", "Окс өркениеті", "Тигр өркениеті"], correct: 2 },
-      { question: "Шаштың солтүстігін алып жатқан аймақ?", options: ["Жетісу", "Соғды", "Сырдария", "Ферғана"], correct: 2 },
-      { question: "Ұлы Даланың аумағы қандай?", options: ["Енисейден Жапон теңізіне дейін", "Дунайдан Алтай мен Маньчжурияға дейін", "Аралдан Жетісуға дейін", "Түркістаннан Иранға дейін"], correct: 1 }
-    ];
-
-    const yesNoQuestions = [
-      { question: "Неолит дәуірінде металл балқыту меңгерілді.", answer: false },
-      { question: "Жейтундықтар дәнді дақылдарды өсірген.", answer: true },
-      { question: "Маргуш мәдениеті Жетісуда пайда болды.", answer: false },
-      { question: "Суармалы егіншілік энеолитте басталды.", answer: true },
-      { question: "Соғды аймағы мал шаруашылығымен ғана шұғылданды.", answer: false }
-    ];
-
-    function renderTest() {
-      const container = document.getElementById("test-questions");
-      container.innerHTML = "";
-      testQuestions.forEach((q, i) => {
-        const div = document.createElement("div");
-        div.innerHTML = `<p>${i+1}. ${q.question}</p>`;
-        q.options.forEach((opt, j) => {
-          div.innerHTML += `<label><input type="radio" name="q${i}" value="${j}"> ${opt}</label><br>`;
-        });
-        container.appendChild(div);
-      });
-    }
-
-    function checkTestAnswers() {
-      let correct = 0;
-      testQuestions.forEach((q, i) => {
-        const val = document.querySelector(`input[name="q${i}"]:checked`);
-        if (val && parseInt(val.value) === q.correct) correct++;
-      });
-      document.getElementById("test-feedback").innerText = `Дұрыс жауаптар: ${correct} / ${testQuestions.length}`;
-    }
-
-    function renderYesNo() {
-      const container = document.getElementById("yesno-questions");
-      container.innerHTML = "";
-      yesNoQuestions.forEach((q, i) => {
-        const div = document.createElement("div");
-        div.innerHTML = `
-          <p>${i+1}. ${q.question}</p>
-          <label><input type="radio" name="yn${i}" value="true"> Иә</label>
-          <label><input type="radio" name="yn${i}" value="false"> Жоқ</label>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function checkYesNoAnswers() {
-      let correct = 0;
-      yesNoQuestions.forEach((q, i) => {
-        const val = document.querySelector(`input[name="yn${i}"]:checked`);
-        if (val && val.value === q.answer.toString()) correct++;
-      });
-      document.getElementById("yesno-feedback").innerText = `Дұрыс жауаптар: ${correct} / ${yesNoQuestions.length}`;
-    }
-
-    renderTest();
-    renderYesNo();
-    function showFinalResult() {
-  const total = 10 + 5 + 10 + 5;
-  const correctTest = document.getElementById("test-feedback").innerText.match(/\d+/g);
-  const correctYesNo = document.getElementById("yesno-feedback").innerText.match(/\d+/g);
-  let correct = 0;
-
-  if (correctTest) correct += parseInt(correctTest[0]);
-  if (correctYesNo) correct += parseInt(correctYesNo[0]);
-
-  // Филворд пен сәйкестендіру бағасын қосыңыз
-  correct += foundWords.length;
-  document.querySelectorAll(".match-target").forEach(t => {
-    if (t.classList.contains("matched")) correct++;
-  });
-
-  document.getElementById("final-result").innerText = `Жалпы дұрыс жауаптар: ${correct} / ${total}`;
-}
-function showFinalResult() {
-  let filwordScore = score;
-  
-  let matchScore = 0;
-  targets.forEach(t => {
-    if (t.classList.contains("matched")) matchScore += 1;
-  });
-
-  const testText = document.getElementById("test-feedback").innerText;
-  const testCorrect = parseInt(testText.match(/\d+/)?.[0] || 0);
-
-  const yesnoText = document.getElementById("yesno-feedback").innerText;
-  const yesnoCorrect = parseInt(yesnoText.match(/\d+/)?.[0] || 0);
-
-  const totalScore = filwordScore + matchScore * 10 + testCorrect * 10 + yesnoCorrect * 10;
-
-  document.getElementById("final-result").innerText = `Жалпы ұпай: ${totalScore}`;
-}
-function checkMatches() {
-  let correct = 0;
-  targets.forEach(t => {
-    if (t.classList.contains("matched")) {
-      correct++;
-    } else {
-      t.classList.add("incorrect");
-    }
-  });
-  alert(`Дұрыс сәйкестік саны: ${correct} / ${targets.length}`);
-}
-if (score === words.length * 10) {
-  document.getElementById("congrats").style.display = "block";
-}
-
-  </script>
-  <div id="congrats" style="display: none; font-weight: bold; color: green;">Барлық сөз табылды! Құттықтаймыз!</div>
-
+  renderMatching();
+  // ============ 3. ТЕСТ СҰРАҚТАРЫ ============
+ const testQuestions = [
+  { question: "Ғұндардың Еуропаға жорығын сипаттаған кім?", options: ["Томсен", "Сыма Цянь", "Марцелин", "Геродот"], correct: 2 },
+  { question: "1893 жылы түркі жазуын алғаш оқыған кім?", options: ["Марцелин", "Махмұд Қашқари", "Томсен", "Сыма Цянь"], correct: 2 },
+  { question: "Әмудария мен Сырдария аралығындағы ірі егіншілік аймағындағы қала:", options: ["Шаш", "Гонур", "Марокко", "Мараканд"], correct: 3 },
+  { question: "Сыма Цянның дерегі бойынша 70 қаласы болған мемлекет:", options: ["Ферғана", "Соғды", "Хорезм", "Бактрия"], correct: 0 },
+  { question: "Ботай мәдениетінің хронологиясы:", options: ["2500–1900", "3700–3100", "4200–3000", "3000–2000"], correct: 1 },
+  { question: "Петров мәдениетінің ерекшелігі:", options: ["Қыш ыдыстар", "Қорғаныс орлар", "Балық аулау", "Металл балқыту"], correct: 1 },
+  { question: "Жер өңдеп, дәнді дақылдарды алғаш өсірген?", options: ["Сақтар", "Андрондықтар", "Жейтундықтар", "Ботайлықтар"], correct: 2 },
+  { question: "Мәйіттерді шұңқырларға жерлеу қай мәдениетке тән?", options: ["Сарғалы", "Көне шұңқырлықтар", "Андрон", "Беғазы-Дәндібай"], correct: 1 },
+  { question: "200 қоныс пен 40 қорымы бар соңғы андрон мәдениеті:", options: ["Сарғалы", "Петров", "Алакөл", "Федоров"], correct: 0 },
+  { question: "Андрондықтар өсірген негізгі мал түрі:", options: ["Жылқы", "Қой", "Ірі қара мал", "Түйе"], correct: 2 }
+];
  
+const quizDiv = document.getElementById("quiz-container");
+testQuestions.forEach((q, i) => {
+  const div = document.createElement("div");
+  div.innerHTML = `<p>${q.question}</p>`;
+  q.options.forEach((opt, j) => {
+    div.innerHTML += `
+      <label><input type="radio" name="q${i}" value="${j}"> ${opt}</label><br>`;
+  });
+  div.innerHTML += `<div id="result${i}"></div>`;
+  quizDiv.appendChild(div);
+});
+
+function submitTest() {
+  let correct = 0;
+  testQuestions.forEach((q, i) => {
+    const selected = document.querySelector(`input[name='q${i}']:checked`);
+    const result = document.getElementById(`result${i}`);
+    if (selected) {
+      if (parseInt(selected.value) === q.correct) {
+        correct++;
+        result.textContent = "Дұрыс ✅";
+        result.style.color = "green";
+      } else {
+        result.textContent = `Қате ❌ Дұрыс: ${q.options[q.correct]}`;
+        result.style.color = "red";
+      }
+    } else {
+      result.textContent = "Жауап берілмеді";
+      result.style.color = "gray";
+    }
+  });
+  scoreTest = correct * 1;
+  alert(`Тесттен ${scoreTest} ұпай`);
+  updateScoreDisplay();
+}
+  // ============ 4. ИӘ / ЖОҚ ============
+const yesNoQuestions = [
+  { question: "Тұмар (Томирис) сақ тайпасын басқарған.", answer: true },
+  { question: "Қыпшақтар ХІ ғасырда оғыздарды Сырдария мен Каспий маңынан ығыстырды.", answer: true },
+  { question: "Оғыз тайпаларының саны 24 болған.", answer: true },
+  { question: "Х ғасырда Оғыз даласы Алтайдан Қытайға дейін созылған.", answer: false },
+  { question: "1210 жылы Шығыс Қарахан әулетін наймандар талқандаған.", answer: true },
+  { question: "Сұлу қаған 751–775 жылдары билік етті.", answer: false },
+  { question: "Түргеш қағанатын Ушлік қаған құрған.", answer: true },
+  { question: "1208 жылы наймандар Жетісуға қоныс аударды.", answer: true },
+  { question: "Қимақ қағанатындағы ең көп тайпа — қарлұқтар.", answer: false },
+  { question: "Қарақытай мемлекетінің ордасы — Гуз қаласы болған.", answer: true },
+  { question: "Қимақтар ислам дінін ұстанған.", answer: false },
+  { question: "Атлах шайқасы 751 жылы болған.", answer: true }
+];
+const yesnoDiv = document.getElementById("yesno-container");
+yesNoQuestions.forEach((q, i) => {
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <p>${q.question}</p>
+    <label><input type="radio" name="yesno${i}" value="true"> Иә</label>
+    <label><input type="radio" name="yesno${i}" value="false"> Жоқ</label>
+    <div id="resultYesNo${i}"></div>
+  `;
+  yesnoDiv.appendChild(div);
+});
+
+function submitYesNo() {
+  let correct = 0;
+  yesNoQuestions.forEach((q, i) => {
+    const selected = document.querySelector(`input[name='yesno${i}']:checked`);
+    const result = document.getElementById(`resultYesNo${i}`);
+    if (selected) {
+      const answer = selected.value === "true";
+      if (answer === q.answer) {
+        correct++;
+        result.textContent = "Дұрыс ✅";
+        result.style.color = "green";
+      } else {
+        result.textContent = "Қате ❌";
+        result.style.color = "red";
+      }
+    } else {
+      result.textContent = "Жауап берілмеді";
+      result.style.color = "gray";
+    }
+  });
+  scoreYesNo = correct * 1;
+  alert(`Иә/Жоқтан ${scoreYesNo} ұпай`);
+  updateScoreDisplay();
+}
+
+    // Бетті жүктегенде көрсету
+    renderYesNo();
+
+  // ============ 5. ҰПАЙ КӨРСЕТУ ============
+function updateScoreDisplay() {
+  const finalText = `
+Сәйкестендіру: ${scoreMatching} балл  
+Иә/Жоқ: ${scoreYesNo} балл  
+Тест: ${scoreTest} балл  
+Жалпы ұпай: ${scoreMatching + scoreYesNo + scoreTest} балл`;
+  document.getElementById("final-result").textContent = finalText;
+}
+
+function showFinalScore() {
+  updateScoreDisplay();
+}
+
+
+
+  // ============ 6. БЕТ ЖҮКТЕЛГЕНДЕ ============
+  window.onload = () => {
+    fillGrid();
+    renderGrid();
+    renderMatching();
+    renderQuiz();
+    renderYesNo();
+  };
+</script>
+
 
 </body>
+
 </html>
